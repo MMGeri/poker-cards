@@ -3,7 +3,7 @@ import cv2
 from PIL import ImageTk, Image
 import os
 
-image_name = "camera.png" if os.path.exists("camera.png") else "assets/thumbnail.jpg"
+image_name = "camera.png" if os.path.exists("camera.png") else "assets/placeholder.jpg"
 
 
 def create_picture():
