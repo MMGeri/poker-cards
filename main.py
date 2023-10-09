@@ -11,6 +11,13 @@ def create_picture():
     result, image = camera.read()
     if result:
         cv2.imwrite(image_name, image)
+        change_img()
+
+
+def change_img():
+    img2 = ImageTk.PhotoImage(Image.open(image_name))
+    label.configure(image=img2)
+    label.image = img2
 
 
 root = Tk()
@@ -29,5 +36,6 @@ img = ImageTk.PhotoImage(Image.open(image_name))
 label = Label(frame, image=img)
 label.pack()
 
+root.bind("<Return>", change_img)
 
 root.mainloop()
