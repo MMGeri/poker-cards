@@ -14,7 +14,7 @@ model = tf.keras.models.load_model(model_path)
 
 image = cv2.imread( image_path, cv2.IMREAD_GRAYSCALE)
 image = cv2.resize(image, (28, 28))
-classes = 13
+classes = 4
 
 #dilate image with opencv
 range = 2
@@ -34,8 +34,8 @@ plt.bar(np.arange(classes), predictions[0])
 plt.show()
 
 plt.imshow(np.reshape(image, [28, 28]), cmap='gray')
+classes = ['A', 'J', 'K', 'Q']
 # classes = ["clubs", "diamonds", "hearts", "spades"]
-classes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "king", "queen"]
 print("Model prediction:", predictions[0])
 print("Model prediction:", classes[np.argmax(predictions[0])])
 plt.show()

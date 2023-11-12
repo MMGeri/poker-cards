@@ -6,13 +6,14 @@ import matplotlib.pyplot as plt
 
 # signs / values
 dataToSegment = 'values'
+trainOrTest = "train"
 
 input_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\augment_data\\inputs'
-imagePath = f"{input_folder}\\train_zipped\\"
+imagePath = f"{input_folder}\\{trainOrTest}_zipped\\"
 output_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\training\\data'
 
 # filename,width,height,class,xmin,ymin,xmax,ymax
-train_df = pd.read_csv(f"{input_folder}\\train_cards_label.csv", dtype={'label': str})
+train_df = pd.read_csv(f"{input_folder}\\{trainOrTest}_cards_label.csv", dtype={'label': str})
 train_df.head()
 
 i = 0
@@ -168,14 +169,14 @@ while i < rowsToProcess:
         IMG = cv2.resize(IMG, (28, 28), interpolation=cv2.INTER_AREA)
 
         cv2.imwrite(
-            f"{output_folder}\\{dataToSegment}\\{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg",
+            f"{output_folder}\\{dataToSegment}_{trainOrTest}\\{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg",
             IMG)
 
         if(dataToSegment == 'signs'):
-            with open(f"{output_folder}\\{dataToSegment}.csv", "a") as file:
+            with open(f"{output_folder}\\{dataToSegment}_{trainOrTest}.csv", "a") as file:
                 file.write(f"{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg,{rectangle['label'][-1]}\n")
         else:
-            with open(f"{output_folder}\\{dataToSegment}.csv", "a") as file:
+            with open(f"{output_folder}\\{dataToSegment}_{trainOrTest}.csv", "a") as file:
                 file.write(f"{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg,{rectangle['label'][:-1]}\n")
 
 
