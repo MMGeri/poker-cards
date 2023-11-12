@@ -4,6 +4,21 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 
+# signs / values
+dataToSegment = 'values'
+
+input_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\augment_data\\inputs'
+imagePath = f"{input_folder}\\train_zipped\\"
+output_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\training\\data'
+
+# filename,width,height,class,xmin,ymin,xmax,ymax
+train_df = pd.read_csv(f"{input_folder}\\train_cards_label.csv", dtype={'label': str})
+train_df.head()
+
+i = 0
+rowsToProcess = len(train_df)
+image = cv2.imread(f"{imagePath}\\{train_df['filename'][i]}", cv2.IMREAD_GRAYSCALE)
+
 def getRectanglesOnImage(i):
     cFilename = train_df['filename'][i]
     rectanglesOnImage = []
@@ -53,11 +68,14 @@ def getAngleOfBox(centreOfRectangle, centroid):
 
     return angle
 
-def cutOutBoxFromBottom(rotatedRectangle):
-    # cut out 20x20 box from the bottom middle of the image
-    SIGN = rotatedRectangle[rotatedRectangle.shape[0] - 34:rotatedRectangle.shape[0]-3,
-             int(rotatedRectangle.shape[1] / 2) - 12:int(rotatedRectangle.shape[1] / 2) + 15]
-    return SIGN
+def cutOutBoxFromBottom(rotatedRectangle, dataToSegment):
+    if(dataToSegment == 'signs'):
+        IMAGE = rotatedRectangle[rotatedRectangle.shape[0] - 34:rotatedRectangle.shape[0] - 3,
+                 int(rotatedRectangle.shape[1] / 2) - 12:int(rotatedRectangle.shape[1] / 2) + 15]
+    else:
+        IMAGE = rotatedRectangle[0:rotatedRectangle.shape[0] - 24,
+                int(rotatedRectangle.shape[1] / 2) - 12:int(rotatedRectangle.shape[1] / 2) + 15]
+    return IMAGE
 
 def rotate_image(mat, angle):
     angle = angle * 180 / np.pi
@@ -106,23 +124,16 @@ def fillClearBlackAreasWithWhite(SIGN):
     SIGN[dilate != 0] = med
     return SIGN
 
-input_folder = 'inputs'
-output_folder = '../../training/data'
-
-# filename,width,height,class,xmin,ymin,xmax,ymax
-train_df = pd.read_csv(f"{input_folder}/signs.csv", dtype={'label': str})
-train_df.head()
-
-i = 0
-rowsToProcess = len(train_df)
-image = cv2.imread(f"{input_folder}/{train_df['filename'][i]}", cv2.IMREAD_GRAYSCALE)
+#make directory if it doesn't exist
+if not os.path.exists(f"{output_folder}\\{dataToSegment}"):
+    os.makedirs(f"{output_folder}\\{dataToSegment}")
 
 # create or override the csv file
-with open(f"{output_folder}/signs.csv", "w") as file:
+with open(f"{output_folder}\\{dataToSegment}.csv", "w") as file:
     file.write("filename,label\n")
 
 while i < rowsToProcess:
-    image = cv2.imread(f"{input_folder}/{train_df['filename'][i]}", cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(f"{imagePath}\\{train_df['filename'][i]}", cv2.IMREAD_GRAYSCALE)
     # get rectangles on image
     rectanglesOnImage, i, labels, filenames = getRectanglesOnImage(i)
     # get centroid
@@ -148,19 +159,24 @@ while i < rowsToProcess:
         # rotate the rectangle
         coords = rectangle['coordinates']
         rotatedRectangle = rotate_image(image[coords[1]:coords[3], coords[0]:coords[2]], -angle)
-        SIGN = cutOutBoxFromBottom(rotatedRectangle)
-        SIGN = fillClearBlackAreasWithWhite(SIGN)
+
+        IMG = cutOutBoxFromBottom(rotatedRectangle, dataToSegment)
+        IMG = fillClearBlackAreasWithWhite(IMG)
 
         # save the image and the image-label csv to the output folder
         # make it 28 by 28 and stretch it if it needs to be stretched
-        SIGN = cv2.resize(SIGN, (28, 28), interpolation=cv2.INTER_AREA)
-        # save the image
-        cv2.imwrite(f"{output_folder}/signs/{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg", SIGN)
+        IMG = cv2.resize(IMG, (28, 28), interpolation=cv2.INTER_AREA)
 
+        cv2.imwrite(
+            f"{output_folder}\\{dataToSegment}\\{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg",
+            IMG)
 
-        # append the csv
-        with open(f"{output_folder}/signs.csv", "a") as file:
-            file.write(f"{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg,{rectangle['label']}\n")
+        if(dataToSegment == 'signs'):
+            with open(f"{output_folder}\\{dataToSegment}.csv", "a") as file:
+                file.write(f"{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg,{rectangle['label'][-1]}\n")
+        else:
+            with open(f"{output_folder}\\{dataToSegment}.csv", "a") as file:
+                file.write(f"{rectangle['filename'].rstrip('.jpg')}_{rectangle['label']}.jpg,{rectangle['label'][:-1]}\n")
 
 
 #show image

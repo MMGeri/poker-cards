@@ -10,7 +10,9 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCh
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-df = pd.read_csv("data/signs.csv")
+data = "values"
+
+df = pd.read_csv(f"data/{data}.csv")
 
 file_paths = df['filename'].values
 labels = df['label'].apply(lambda x: x.strip('.jpg')[-1]).values
@@ -25,7 +27,7 @@ one_hot_labels = to_categorical(encoded_labels, num_classes=num_classes)
 ds_train = tf.data.Dataset.from_tensor_slices((file_paths, one_hot_labels))
 
 def read_image(image_file, label):
-    image = tf.io.read_file("data/signs/" + image_file)
+    image = tf.io.read_file(f"data/{data}/" + image_file)
     image = tf.image.decode_image(image, channels=1, dtype=tf.float32)
     image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
     return image, label
@@ -53,7 +55,7 @@ ds_train = ds_train.shuffle(buffer_size=num_samples)
 ds_val = ds_train.take(num_validation_samples)
 ds_train = ds_train.skip(num_validation_samples)
 
-
+classes = 13
 batch_size = 32
 ds_val = ds_val.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.map(read_image).map(augment).batch(batch_size)
@@ -77,7 +79,7 @@ model = Sequential([
 
     Dense(128, activation='relu', kernel_initializer='glorot_normal'),
     Dense(64, activation='relu', kernel_initializer='glorot_normal'),
-    Dense(4, activation='softmax'),
+    Dense(classes, activation='softmax'),
 ])
 
 earlystop = EarlyStopping(monitor="val_loss", patience=10)
@@ -93,4 +95,4 @@ history = model.fit(
     callbacks=[earlystop,learning_rate_reduction,tf.keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: print(epoch))]
 )
 
-model.save("../models/signs_model.h5")
+model.save(f"../models/{data}_model.h5")
