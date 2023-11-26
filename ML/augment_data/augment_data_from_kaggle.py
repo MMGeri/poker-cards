@@ -5,12 +5,12 @@ import cv2
 import matplotlib.pyplot as plt
 
 # signs / values
-dataToSegment = 'values'
+dataToSegment = 'signs'
 trainOrTest = "train"
 
-input_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\augment_data\\inputs'
+input_folder = 'C:\\Users\\mager\\Desktop\\poker-cards2\\ML\\augment_data\\inputs'
 imagePath = f"{input_folder}\\{trainOrTest}_zipped\\"
-output_folder = 'C:\\Users\\mager\\Desktop\\poker-cards\\ML\\training\\data'
+output_folder = 'C:\\Users\\mager\\Desktop\\poker-cards2\\ML\\training\\data'
 
 # filename,width,height,class,xmin,ymin,xmax,ymax
 train_df = pd.read_csv(f"{input_folder}\\{trainOrTest}_cards_label.csv", dtype={'label': str})

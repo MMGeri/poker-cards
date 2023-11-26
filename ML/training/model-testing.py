@@ -3,11 +3,11 @@ import numpy as np
 import os
 import cv2
 import matplotlib.pyplot as plt
-import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # read the model path and image path from command line
-model_path = "C:\\Users\\mager\\Desktop\\poker-cards\\ML\\models\\values_model.h5" #sys.argv[1]
+model_path = "/ML/models/values_model_2.0.h5"  #sys.argv[1]
+# image_path = "C:\\Users\\mager\\Desktop\\poker-cards2\\contours\\2_1.png" # sys.argv[2]
 image_path = "testimg.png" # sys.argv[2]
 
 model = tf.keras.models.load_model(model_path)
@@ -34,8 +34,8 @@ plt.bar(np.arange(classes), predictions[0])
 plt.show()
 
 plt.imshow(np.reshape(image, [28, 28]), cmap='gray')
-classes = ['A', 'J', 'K', 'Q']
-# classes = ["clubs", "diamonds", "hearts", "spades"]
+# classes = ['A', 'J', 'K', 'Q']
+classes = ['c', 'd', 'h', 's']
 print("Model prediction:", predictions[0])
-print("Model prediction:", classes[np.argmax(predictions[0])])
+print("Model prediction:", classes[np.argmax(predictions[0])] )
 plt.show()

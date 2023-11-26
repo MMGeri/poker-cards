@@ -1,5 +1,10 @@
 import os
+
+import PIL
+import cv2
 import matplotlib.pyplot as plt
+import numpy as np
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 import pandas as pd
@@ -30,6 +35,16 @@ one_hot_labels = to_categorical(encoded_labels, num_classes=num_classes)
 
 ds_train = tf.data.Dataset.from_tensor_slices((file_paths, one_hot_labels))
 
+def visualizeAugmentation(ds_train):
+    # Visualize the augmented images
+    plt.figure(figsize=(10, 10))
+    for i in range(9):
+        augmented_image, _ = next(iter(ds_train))
+        ax = plt.subplot(3, 3, i + 1)
+        plt.imshow(np.squeeze(augmented_image[0]), cmap='gray')  # Use np.squeeze to remove the singleton dimension
+        plt.axis("off")
+    plt.show()
+
 def read_image(image_file, label):
     image = tf.io.read_file(f"data/{data}_train/" + image_file)
     image = tf.image.decode_image(image, channels=1, dtype=tf.float32)
@@ -39,20 +54,24 @@ def read_image(image_file, label):
 def read_image_test(image_file, label):
     image = tf.io.read_file(f"data/{data}_test/" + image_file)
     image = tf.image.decode_image(image, channels=1, dtype=tf.float32)
-    image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
+    # image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
     return image, label
 
 def augment(image, label):
-    image = tf.image.random_brightness(image, max_delta=0.1)
-    image = tf.image.random_contrast(image, lower=0.1, upper=100)
-    image = tf.image.random_jpeg_quality(image, min_jpeg_quality=0, max_jpeg_quality=60)
-    image = tf.numpy_function(lambda img: tf.keras.preprocessing.image.random_rotation(
-        img, 20, row_axis=0, col_axis=1, channel_axis=2, fill_mode='nearest',
-    ), [image], tf.float32)
+    # Zoom
     image = tf.numpy_function(lambda img: tf.keras.preprocessing.image.random_zoom(
-        img, (0.9, 1), row_axis=0, col_axis=1, channel_axis=2, fill_mode='nearest',
+        img, (1.0, 1.5), row_axis=0, col_axis=1, channel_axis=2, fill_mode='constant', cval=1,
     ), [image], tf.float32)
 
+    #Rotation
+    image = tf.numpy_function(lambda img: tf.keras.preprocessing.image.random_rotation(
+        img, 60, row_axis=0, col_axis=1, channel_axis=2, fill_mode='nearest',
+    ), [image], tf.float32)
+
+    # image = tf.image.random_brightness(image, max_delta=0.1)
+    # image = tf.image.random_contrast(image, lower=0.1, upper=100)
+    image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
+    image = tf.image.random_jpeg_quality(image, min_jpeg_quality=0, max_jpeg_quality=60)
     return image, label
 
 validation_fraction = 0.2
@@ -66,14 +85,12 @@ ds_val = ds_train.take(num_validation_samples)
 ds_train = ds_train.skip(num_validation_samples)
 
 classes = 4
-batch_size = 32
+batch_size = 64
 ds_val = ds_val.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.shuffle(buffer_size=batch_size)
 
-# image, label = next(iter(ds_train))
-# _ = plt.imshow(image)
-# plt.show()
+# visualizeAugmentation(ds_train)
 # exit()
 
 model = Sequential([
@@ -90,14 +107,14 @@ model = Sequential([
 
     Dense(128, activation='relu', kernel_initializer='glorot_normal'),
     Dense(64, activation='relu', kernel_initializer='glorot_normal'),
-    Dense(classes, activation='softmax'),
+    Dense(classes, activation='softmax'), # sigmoid or softmax
 ])
 
 earlystop = EarlyStopping(monitor="val_loss", patience=10)
 learning_rate_reduction = ReduceLROnPlateau(monitor= 'val_accuracy', patience= 2, verbose= 1,
                                             factor= 0.5, min_lr= 0.00001)
 
-epochs = 5
+epochs = 15
 model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])
 history = model.fit(
     ds_train,
