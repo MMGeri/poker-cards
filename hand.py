@@ -2,13 +2,18 @@ from collections import Counter
 
 
 def face_card_value(rank):
-    face_cards = {'J': 11, 'Q': 12, 'K': 13, 'A': 14}
+    face_cards = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
     return face_cards.get(rank, rank)
 
 
 def determine_poker_hand(cards):
-    # Input example: [["K", "D"], ["J", "C"], ["A", "C"], [10, "C"], ["Q", "C"]]
+    # Input example: [["K", "D"], ["J", "C"], ["A", "C"], ["10", "C"], ["Q", "C"]]
     # Sort the cards by rank
+
+    for i in range(len(cards)):
+        if cards[i][0] == "Unknown" or cards[i][1] == "Unknown":
+            return "Invalid poker hand"
+
     cards = [[face_card_value(rank), suit] for rank, suit in cards]
 
     sorted_cards = sorted(cards, key=lambda x: x[0])
@@ -42,9 +47,5 @@ def determine_poker_hand(cards):
     elif 2 in rank_counts.values():
         return "One Pair"
     else:
-        return "High Card"
+        return "High Card: " + sorted_cards[0][0] + " of " + sorted_cards[0][1]
 
-
-cards = [["K", "D"], ["J", "C"], ["A", "C"], [10, "C"], ["Q", "C"]]
-result = determine_poker_hand(cards)
-print(result)
