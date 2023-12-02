@@ -1,4 +1,5 @@
 from collections import Counter
+import card
 
 
 def face_card_value(rank):
@@ -47,5 +48,5 @@ def determine_poker_hand(cards):
     elif 2 in rank_counts.values():
         return "One Pair"
     else:
-        return "High Card: " + str(sorted_cards[0][0]) + " of " + str(sorted_cards[0][1])
+        return "High Card"
 

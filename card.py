@@ -44,7 +44,7 @@ def predict_rank(image):
     predictions_n = numbers_model.predict(test_images)
     classes = ['A', 'J', 'K', 'Q', '']
     print("betu ", np.max(predictions_v[0]), "szam",  np.max(predictions_n[0]))
-    if np.max(predictions_v[0]) > 0.9 and classes[np.argmax(predictions_v[0])] != '':
+    if np.max(predictions_v[0]) > 0.9 and classes[np.argmax(predictions_v[0])] != '' and np.max(predictions_v[0]) > np.max(predictions_n[0]):
         return classes[np.argmax(predictions_v[0])]
     return np.argmax(predictions_n[0])
 
@@ -194,6 +194,7 @@ def preprocess_card(contour, image):
         x1, y1, w1, h1 = cv2.boundingRect(card_rank_contours[0])
         card_rank_roi = card_rank[y1:y1 + h1, x1:x1 + w1]
         card_rank_sized = cv2.resize(card_rank_roi, (RANK_WIDTH, RANK_HEIGHT), 0, 0)
+        card_rank_sized = cv2.copyMakeBorder(card_rank_sized, 4, 4, 4, 4, cv2.BORDER_CONSTANT)
         card.rank_img = card_rank_sized
 
     # Find suit contour and bounding rectangle, isolate and find the largest contour
@@ -206,6 +207,7 @@ def preprocess_card(contour, image):
         x2, y2, w2, h2 = cv2.boundingRect(card_suit_contours[0])
         card_suit_roi = card_suit[y2:y2 + h2, x2:x2 + w2]
         card_suit_sized = cv2.resize(card_suit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
+        card_suit_sized = cv2.copyMakeBorder(card_suit_sized, 2, 2, 2, 2, cv2.BORDER_CONSTANT)
         card.suit_img = card_suit_sized
 
     card.best_suit_match = predict_suit(card.suit_img)
