@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import cv2
 import card
 import process
-
+from segment import findAllContours
 
 class PokerApp:
     def __init__(self, root):
@@ -26,7 +26,7 @@ class PokerApp:
         # self.corner_width = tk.StringVar()
         # self.corner_height = tk.StringVar()
         # self.rank_width = tk.StringVar()
-        # self.rank_height = tk.StringVar()
+        self.rank_height_af = tk.IntVar()
         # self.suit_width = tk.StringVar()
         # self.suit_height = tk.StringVar()
         self.card_max_area = tk.StringVar()
@@ -38,7 +38,7 @@ class PokerApp:
         # self.corner_width.set(str(card.CORNER_WIDTH))
         # self.corner_height.set(str(card.CORNER_HEIGHT))
         # self.rank_width.set(str(card.RANK_WIDTH))
-        # self.rank_height.set(str(card.RANK_HEIGHT))
+        self.rank_height_af.set(int(50))
         # self.suit_width.set(str(card.SUIT_WIDTH))
         # self.suit_height.set(str(card.SUIT_HEIGHT))
         self.card_max_area.set(str(card.CARD_MAX_AREA))
@@ -62,11 +62,11 @@ class PokerApp:
         # self.create_entry("Corner width:", self.corner_width)
         # self.create_entry("Corner height:", self.corner_height)
         # self.create_entry("Rank width:", self.rank_width)
-        # self.create_entry("Rank height:", self.rank_height)
         # self.create_entry("Suit width:", self.suit_width)
         # self.create_entry("Suit height:", self.suit_height)
         self.create_entry("Card minimal area:", self.card_min_area)
         self.create_entry("Card maximal area:", self.card_max_area)
+
 
         # Process and display button
         self.process_button = tk.Button(self.widget_frame, text="Process Image", command=self.process_image)
@@ -75,6 +75,13 @@ class PokerApp:
         # Result display
         self.result_label = tk.Label(self.widget_frame, text="")
         self.result_label.pack()
+
+        # Additional button for the new function
+        self.create_entry("Rank height for additional function:", self.rank_height_af)
+        self.run_additional_function_button = tk.Button(self.widget_frame, text="Run Additional Function", command=self.run_additional_function)
+        self.run_additional_function_button.pack()
+
+
 
     def create_entry(self, label_text, variable):
         label = tk.Label(self.widget_frame, text=label_text)
@@ -114,7 +121,7 @@ class PokerApp:
             # card.CORNER_WIDTH = int(self.corner_width.get())
             # card.CORNER_HEIGHT = int(self.corner_height.get())
             # card.RANK_WIDTH = int(self.rank_width.get())
-            # card.RANK_HEIGHT = int(self.rank_height.get())
+            # card.RANK_HEIGHT = int(self.rank_height_af.get())
             # card.SUIT_WIDTH = int(self.suit_width.get())
             # card.SUIT_HEIGHT = int(self.suit_height.get())
             card.CARD_MAX_AREA = int(self.card_max_area.get())
@@ -138,6 +145,11 @@ class PokerApp:
         # Display the processed image
         self.image_label.config(image=img_tk)
         self.image_label.image = img_tk
+
+    def run_additional_function(self):
+        # This is a placeholder function, replace it with your actual logic
+        additional_result = findAllContours(cv2.imread(self.image_path), 10,  self.rank_height_af.get())
+        self.show_processed_image(additional_result)  # Example: Show an additional image
 
 
 if __name__ == "__main__":

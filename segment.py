@@ -66,8 +66,7 @@ def displayFilteredContours(img,contours, texts):
         x, y, w, h = cv2.boundingRect(contours[i])
         cv2.putText(img, texts[i], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
-    cv2.imshow("cards.png", img)
-    cv2.waitKey(0)
+    return img
 
 def filterContoursByHavingPairs(contours, texts):
     # contours should have a neighbour in close proximity, above or below
@@ -98,8 +97,6 @@ def filterContoursByHavingPairs(contours, texts):
                 paired.append(i)
                 paired.append(j)
                 break
-            else:
-                print(distance, heightSum, closeEnough, belowEachOther, notFarApart, notTheSame, texts[i], texts[j])
 
     return filteredContours, filteredTexts
 
@@ -120,7 +117,6 @@ def findAllContours(img, min_size, max_size):
     thresh_level = bkg_level + 100
     # im_thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY , 41, 10) # which is better? I have no idea
     threshold, im_thresh = cv2.threshold(blur, thresh_level, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    cv2.imshow("thresh", im_thresh)
     im_thresh = cv2.bitwise_not(im_thresh)
 
     # get contours
@@ -139,7 +135,4 @@ def findAllContours(img, min_size, max_size):
     contours, texts = filterByEvaluatingModel(contours, im_thresh, (numbers_model, rank_model, suit_model))
     contours, texts = filterContoursByHavingPairs(contours, texts)
 
-    displayFilteredContours(img,contours, texts)
-
-
-findAllContours(cv2.imread("assets/test.png"), 10, 50)
+    return displayFilteredContours(img,contours, texts)
