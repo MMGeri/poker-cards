@@ -2,7 +2,6 @@ import cv2
 import card
 import hand
 
-
 def process_image(path):
     image = cv2.imread(path)
 

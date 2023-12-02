@@ -15,7 +15,7 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCh
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-data = "values"
+data = "signs"
 
 df = pd.read_csv(f"data/{data}_train.csv")
 
@@ -85,7 +85,7 @@ ds_val = ds_train.take(num_validation_samples)
 ds_train = ds_train.skip(num_validation_samples)
 
 classes = 4
-batch_size = 64
+batch_size = 32
 ds_val = ds_val.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.shuffle(buffer_size=batch_size)

@@ -2,7 +2,8 @@ from collections import Counter
 
 
 def face_card_value(rank):
-    face_cards = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
+    print(rank)
+    face_cards = {'0': 10 ,'1': 10, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
     return face_cards.get(rank, rank)
 
 
@@ -47,5 +48,5 @@ def determine_poker_hand(cards):
     elif 2 in rank_counts.values():
         return "One Pair"
     else:
-        return "High Card: " + sorted_cards[0][0] + " of " + sorted_cards[0][1]
+        return "High Card: " + str(sorted_cards[0][0]) + " of " + str(sorted_cards[0][1])
 

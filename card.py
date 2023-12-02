@@ -1,3 +1,4 @@
+import tensorflow as tf
 import numpy as np
 import cv2
 
@@ -24,6 +25,44 @@ CARD_MIN_AREA = 25000
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
+rank_model = tf.keras.models.load_model("ML/models/backup/values_model_2.0.h5")
+numbers_model = tf.keras.models.load_model("ML/models/backup/number_model.h5")
+suit_model = tf.keras.models.load_model("ML/models/backup/signs_model_2.0.h5")
+
+def predict_rank(image):
+    image = cv2.resize(image, (28, 28))
+
+    # dilate image with opencv
+    image = cv2.bitwise_not(image)
+
+    test_images = np.array(image)
+    test_images = np.array([test_images])  # Convert single image to a batch.
+    test_images = test_images.astype('float32')
+    test_images /= 255
+
+    predictions_v = rank_model.predict(test_images)
+    predictions_n = numbers_model.predict(test_images)
+    classes = ['A', 'J', 'K', 'Q']
+    print("betu ", np.max(predictions_v[0]), "szam",  np.max(predictions_n[0]))
+    if np.max(predictions_n[0]) > 0.9:
+        return np.argmax(predictions_n[0])
+    return classes[np.argmax(predictions_v[0])]
+
+def predict_suit(image):
+    model = suit_model
+    image = cv2.resize(image, (28, 28))
+
+    # dilate image with opencv
+    image = cv2.bitwise_not(image)
+
+    test_images = np.array(image)
+    test_images = np.array([test_images])  # Convert single image to a batch.
+    test_images = test_images.astype('float32')
+    test_images /= 255
+
+    predictions = model.predict(test_images)
+    classes = ['c', 'd', 'h', 's']
+    return classes[np.argmax(predictions[0])]
 
 # Structures to hold query card and train card information
 class Card:
@@ -155,6 +194,9 @@ def preprocess_card(contour, image):
         card_suit_roi = card_suit[y2:y2 + h2, x2:x2 + w2]
         card_suit_sized = cv2.resize(card_suit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
         card.suit_img = card_suit_sized
+
+    card.best_suit_match = predict_suit(card.suit_img)
+    card.best_rank_match = str(predict_rank(card.rank_img))
 
     return card
 

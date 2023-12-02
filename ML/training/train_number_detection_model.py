@@ -53,7 +53,7 @@ learning_rate_reduction = ReduceLROnPlateau(monitor= 'val_accuracy', patience= 2
 checkpoint = ModelCheckpoint(f'../models/number_model.h5', monitor='val_accuracy', save_best_only=True,
                              save_weights_only=False, mode='auto', save_freq='epoch')
 
-epochs = 40
+epochs = 20
 model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])
 history = model.fit(
     train_gen, epochs= epochs, validation_data= val_gen,

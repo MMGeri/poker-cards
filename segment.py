@@ -6,19 +6,15 @@ from matplotlib import pyplot as plt
 tf.get_logger().setLevel(tf.compat.v1.logging.ERROR)
 
 # Run the model on the contours, and the first matching contour should be the required minimum and maximum size
-def filterByEvaluatingModel(contours, model, thresh, image):
+def filterByEvaluatingModel(contours, thresh, image):
     filteredContours = []
     images = []
     for cnt in contours:
         x, y, w, h = cv2.boundingRect(cnt)
         # resize image to 28x28
-        img = thresh[y:y + h, x:x + w]
+        img = cv2.bitwise_not(thresh[y:y + h, x:x + w])
         img = cv2.resize(img, (28, 28))
         img = np.expand_dims(img, axis=0)
-
-        sizeOfKernel = 2
-        kernel = np.ones((sizeOfKernel, sizeOfKernel), np.uint8)
-        img = -1*cv2.dilate(np.array(-1 * img), kernel, iterations=1)
 
         img = np.array(img)
         img = img.astype('float32')
@@ -27,16 +23,24 @@ def filterByEvaluatingModel(contours, model, thresh, image):
         images.append(img)
 
     images_array = np.concatenate(images, axis=0)
-    predictions = model.predict(images_array)
-    # if the prediction is greater than x, then the contour is a card
-    for i in range(len(predictions)):
-        if 1 > np.max(predictions[i]) >= 0.9:
-            print(np.max(predictions[i]))
-            classes = ['c', 'd', 'h', 's']
-            # classes = ['A', 'J', 'K', 'Q']
+    number_predictions = numbers_model.predict(images_array)
+    rank_predictions = rank_model.predict(images_array)
+    suit_predictions = suit_model.predict(images_array)
+    suit_classes = ['c', 'd', 'h', 's']
+    rank_classes = ['A', 'J', 'K', 'Q']
+
+    for i in range(len(contours)):
+        if 1 > np.max(number_predictions[i]) > 0.9:
             x, y, w, h = cv2.boundingRect(contours[i])
-            # cv2.putText(image, str(np.argmax(predictions[i])), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.putText(image, classes[np.argmax(predictions[i])], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(image, str(np.argmax(number_predictions[i])), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            filteredContours.append(contours[i])
+        elif 1 > np.max(suit_predictions[i]) > 0.9:
+            x, y, w, h = cv2.boundingRect(contours[i])
+            cv2.putText(image, suit_classes[np.argmax(suit_predictions[i])], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            filteredContours.append(contours[i])
+        elif 1 > np.max(rank_predictions[i]) > 0.9:
+            x, y, w, h = cv2.boundingRect(contours[i])
+            cv2.putText(image, rank_classes[np.argmax(rank_predictions[i])], (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             filteredContours.append(contours[i])
 
     return filteredContours, image
@@ -72,9 +76,10 @@ def displayFilteredContours(contours):
         x, y, w, h = cv2.boundingRect(cnt)
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 3)
 
-img_path = "assets/placeholder.jpg"
-modelPath = "ML/models/backup/signs_model_2.0.h5"
-model = tf.keras.models.load_model(modelPath)
+img_path = "assets/test.png"
+rank_model = tf.keras.models.load_model("ML/models/backup/values_model_2.0.h5")
+numbers_model = tf.keras.models.load_model("ML/models/backup/number_model.h5")
+suit_model = tf.keras.models.load_model("ML/models//backup/signs_model.h5")
 
 img= cv2.imread(img_path)
 height = 700
@@ -104,7 +109,7 @@ contours.pop(0)
 
 # remove contours that are inside other contour
 contours = filterContoursByMinSize(contours, 10)
-contours, img = filterByEvaluatingModel(contours, model, im_thresh, img)
+contours, img = filterByEvaluatingModel(contours, im_thresh, img)
 
 displayFilteredContours(contours)
 
