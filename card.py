@@ -79,6 +79,18 @@ class Card:
         self.best_suit_match = "Unknown"  # Best matched suit
 
 
+def get_rank_full_name(rank):
+    ranks = {'2': 'Two', '3': 'Three', '4': 'Four', '5': 'Five', '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine',
+             '0': 'Ten', 'J': 'Jack', 'Q': 'Queen', 'K': 'King', 'A': 'Ace'}
+    return ranks.get(rank, rank)
+
+
+def get_suit_full_name(suit):
+    suits = {'s': 'Spades', 'h': 'Hearts', 'c': 'Clubs', 'd': 'Diamonds'}
+    return suits.get(suit, suit)
+
+
+
 def preprocess_image(image):
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

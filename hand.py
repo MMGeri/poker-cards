@@ -2,8 +2,7 @@ from collections import Counter
 
 
 def face_card_value(rank):
-    print(rank)
-    face_cards = {'0': 10 ,'1': 10, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
+    face_cards = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '0': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}
     return face_cards.get(rank, rank)
 
 

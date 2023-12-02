@@ -40,6 +40,9 @@ def process_image(path):
                 determine_hand_cards.append([cards[k].best_rank_match, cards[k].best_suit_match])
 
                 # Draw center point and match result on the image.
+                cards[k].best_suit_match = card.get_suit_full_name(cards[k].best_suit_match)
+                cards[k].best_rank_match = card.get_rank_full_name(cards[k].best_rank_match)
+
                 image = card.draw_results(image, cards[k])
                 k = k + 1
 
