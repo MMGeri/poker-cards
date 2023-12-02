@@ -24,7 +24,7 @@ def plot_dct_filter(filter_matrix, title, save_path=None):
         plt.show()
 
 def create_csv(output_directory):
-    csv_file_path = os.path.join(output_directory, 'dct_filters.csv')
+    csv_file_path = os.path.join(output_directory, 'dct_filtersdct_filters.csv')
     with open(csv_file_path, 'w', newline='') as csvfile:
         fieldnames = ['filename', 'label']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

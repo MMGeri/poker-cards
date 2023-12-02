@@ -25,8 +25,8 @@ CARD_MIN_AREA = 25000
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-rank_model = tf.keras.models.load_model("ML/models/backup/values_model_2.0.h5")
-numbers_model = tf.keras.models.load_model("ML/models/backup/number_model.h5")
+numbers_model = tf.keras.models.load_model("ML/models/backup/number_model_2.0.h5")
+rank_model = tf.keras.models.load_model("ML/models/backup/values_model_3.0.h5")
 suit_model = tf.keras.models.load_model("ML/models/backup/signs_model_2.0.h5")
 
 def predict_rank(image):
@@ -42,11 +42,12 @@ def predict_rank(image):
 
     predictions_v = rank_model.predict(test_images)
     predictions_n = numbers_model.predict(test_images)
-    classes = ['A', 'J', 'K', 'Q']
+    classes = ['A', 'J', 'K', 'Q', '']
     print("betu ", np.max(predictions_v[0]), "szam",  np.max(predictions_n[0]))
-    if np.max(predictions_n[0]) > 0.9:
-        return np.argmax(predictions_n[0])
-    return classes[np.argmax(predictions_v[0])]
+    if np.max(predictions_v[0]) > 0.9 and classes[np.argmax(predictions_v[0])] != '':
+        return classes[np.argmax(predictions_v[0])]
+    return np.argmax(predictions_n[0])
+
 
 def predict_suit(image):
     model = suit_model

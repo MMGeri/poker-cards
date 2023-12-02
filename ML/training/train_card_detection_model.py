@@ -15,17 +15,26 @@ from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCh
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
-data = "signs"
+data = "values"
 
 df = pd.read_csv(f"data/{data}_train.csv")
 
-l1 = lambda x: x.strip('.jpg')
-l2 = lambda x: x.strip('.jpg')[-1]
+l1 = lambda x: x.strip('.jpg').strip('.png')
+l2 = lambda x: x.strip('.jpg').strip('.png')[-1]
 lam = l1 if data == "values" else l2
 
 file_paths = df['filename'].values
 labels = df['label'].apply(lam).values
-# get the 4 label types
+
+dct_df = pd.read_csv(f"data/dct_filters.csv")
+dct_file_paths = dct_df['filename'].values
+dct_labels = dct_df['label'].values
+
+# join the two dataframes
+file_paths = np.concatenate((file_paths, dct_file_paths))
+labels = np.concatenate((labels, dct_labels))
+
+#print labels
 print(set(labels))
 
 label_encoder = LabelEncoder()
@@ -46,13 +55,13 @@ def visualizeAugmentation(ds_train):
     plt.show()
 
 def read_image(image_file, label):
-    image = tf.io.read_file(f"data/{data}_train/" + image_file)
+    image = tf.io.read_file(f"data/" + image_file)
     image = tf.image.decode_image(image, channels=1, dtype=tf.float32)
     image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
     return image, label
 
 def read_image_test(image_file, label):
-    image = tf.io.read_file(f"data/{data}_test/" + image_file)
+    image = tf.io.read_file(f"data/" + image_file)
     image = tf.image.decode_image(image, channels=1, dtype=tf.float32)
     # image = tf.image.resize_with_pad(image, target_height=28, target_width=28)
     return image, label
@@ -84,7 +93,7 @@ ds_train = ds_train.shuffle(buffer_size=num_samples)
 ds_val = ds_train.take(num_validation_samples)
 ds_train = ds_train.skip(num_validation_samples)
 
-classes = 4
+classes = 5
 batch_size = 32
 ds_val = ds_val.map(read_image).map(augment).batch(batch_size)
 ds_train = ds_train.map(read_image).map(augment).batch(batch_size)

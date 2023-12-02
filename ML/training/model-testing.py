@@ -6,15 +6,14 @@ import matplotlib.pyplot as plt
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # read the model path and image path from command line
-model_path = "../models/signs_model_2.0.h5"  #sys.argv[1]
-# image_path = "testimg.png" # sys.argv[2]
-image_path = "../../contours/13_2.png" # sys.argv[2]
+model_path = "../models/backup/values_model_3.0.h5"  #sys.argv[1]
+image_path = "testimg.png" # sys.argv[2]
 
 model = tf.keras.models.load_model(model_path)
 
 image = cv2.imread( image_path, cv2.IMREAD_GRAYSCALE)
 image = cv2.resize(image, (28, 28))
-classes = 4
+classes = 5
 
 #dilate image with opencv
 range = 2
@@ -35,7 +34,8 @@ plt.show()
 
 plt.imshow(np.reshape(image, [28, 28]), cmap='gray')
 # classes = ['A', 'J', 'K', 'Q']
-classes = ['c', 'd', 'h', 's']
+classes = ['A', 'J', 'K', 'Q', 'neither']
+# classes = ['c', 'd', 'h', 's']
 print("Model prediction:", predictions[0])
 print("Model prediction:", classes[np.argmax(predictions[0])] )
 plt.show()
