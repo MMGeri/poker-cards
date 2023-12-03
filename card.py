@@ -6,7 +6,7 @@ import cv2
 
 # Adaptive threshold levels
 BKG_THRESH = 10
-CARD_THRESH = 30
+CARD_THRESH = 13
 
 # Width and height of card corner, where rank and suit are
 CORNER_WIDTH = 32
