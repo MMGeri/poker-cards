@@ -46,8 +46,7 @@ def process_image(path):
                 image = card.draw_results(image, cards[k])
                 k = k + 1
 
-        # Draw card contours on image (have to do contours all at once, or
-        # they do not show up properly for some reason)
+        # Draw card contours on image
         if len(cards) != 0:
             temp_cnts = []
             for i in range(len(cards)):
@@ -56,10 +55,3 @@ def process_image(path):
 
     print(determine_hand_cards)
     return image, hand.determine_poker_hand(determine_hand_cards)
-    # print(hand.determine_poker_hand(determine_hand_cards))
-    # Finally, display the image with the identified cards!
-    # cv2.imshow("Card Detector", image)
-    # cv2.waitKey(0)
-    #
-    # # Close all windows and close the PiCamera video stream.
-    # cv2.destroyAllWindows()

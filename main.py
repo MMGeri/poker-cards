@@ -23,28 +23,18 @@ class PokerApp:
         # Variables for storing constants
         self.bkg_thresh_var = tk.StringVar()
         self.card_thresh_var = tk.StringVar()
-        # self.corner_width = tk.StringVar()
-        # self.corner_height = tk.StringVar()
-        # self.rank_width = tk.StringVar()
-        self.rank_height_af_min = tk.IntVar()
-        self.rank_height_af_max = tk.IntVar()
-        # self.suit_width = tk.StringVar()
-        # self.suit_height = tk.StringVar()
         self.card_max_area = tk.StringVar()
         self.card_min_area = tk.StringVar()
+        self.rank_height_af_min = tk.IntVar()
+        self.rank_height_af_max = tk.IntVar()
 
         # Set initial values for constants
         self.bkg_thresh_var.set(str(card.BKG_THRESH))
         self.card_thresh_var.set(str(card.CARD_THRESH))
-        # self.corner_width.set(str(card.CORNER_WIDTH))
-        # self.corner_height.set(str(card.CORNER_HEIGHT))
-        # self.rank_width.set(str(card.RANK_WIDTH))
-        self.rank_height_af_min.set(int(10))
-        self.rank_height_af_max.set(int(50))
-        # self.suit_width.set(str(card.SUIT_WIDTH))
-        # self.suit_height.set(str(card.SUIT_HEIGHT))
         self.card_max_area.set(str(card.CARD_MAX_AREA))
         self.card_min_area.set(str(card.CARD_MIN_AREA))
+        self.rank_height_af_min.set(int(10))
+        self.rank_height_af_max.set(int(50))
 
         # File path of the selected image
         self.image_path = None
@@ -61,11 +51,6 @@ class PokerApp:
         # Constants modification
         self.create_entry("Background threshold level:", self.bkg_thresh_var)
         self.create_entry("Card threshold level:", self.card_thresh_var)
-        # self.create_entry("Corner width:", self.corner_width)
-        # self.create_entry("Corner height:", self.corner_height)
-        # self.create_entry("Rank width:", self.rank_width)
-        # self.create_entry("Suit width:", self.suit_width)
-        # self.create_entry("Suit height:", self.suit_height)
         self.create_entry("Card minimal area:", self.card_min_area)
         self.create_entry("Card maximal area:", self.card_max_area)
 
@@ -121,12 +106,6 @@ class PokerApp:
             # Update constants with user-modified values
             card.BKG_THRESH = int(self.bkg_thresh_var.get())
             card.CARD_THRESH = int(self.card_thresh_var.get())
-            # card.CORNER_WIDTH = int(self.corner_width.get())
-            # card.CORNER_HEIGHT = int(self.corner_height.get())
-            # card.RANK_WIDTH = int(self.rank_width.get())
-            # card.RANK_HEIGHT = int(self.rank_height_af.get())
-            # card.SUIT_WIDTH = int(self.suit_width.get())
-            # card.SUIT_HEIGHT = int(self.suit_height.get())
             card.CARD_MAX_AREA = int(self.card_max_area.get())
             card.CARD_MIN_AREA = int(self.card_min_area.get())
 
