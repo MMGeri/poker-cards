@@ -27,7 +27,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 numbers_model = tf.keras.models.load_model("ML/models/backup/number_model_2.0.h5")
 rank_model = tf.keras.models.load_model("ML/models/backup/values_model_3.0.h5")
-suit_model = tf.keras.models.load_model("ML/models/backup/signs_model_2.0.h5")
+suit_model = tf.keras.models.load_model("ML/models/backup/signs_model.h5")
 
 def predict_rank(image):
     image = cv2.resize(image, (28, 28))

@@ -100,7 +100,7 @@ def filterContoursByHavingPairs(contours, texts):
 
     return filteredContours, filteredTexts
 
-def findAllContours(img, min_size, max_size):
+def findAllContours(img, min_size, max_size, bkg_thresh):
     numbers_model = tf.keras.models.load_model("ML/models/backup/number_model_2.0.h5")
     rank_model = tf.keras.models.load_model("ML/models/backup/values_model_3.0.h5")
     suit_model = tf.keras.models.load_model("ML/models/backup/signs_model_3.0.h5")
@@ -114,7 +114,7 @@ def findAllContours(img, min_size, max_size):
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
     bkg_level = gray[int(height / 100)][int(width / 2)]
-    thresh_level = bkg_level + 100
+    thresh_level = bkg_level + int(bkg_thresh)
     # im_thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY , 41, 10) # which is better? I have no idea
     threshold, im_thresh = cv2.threshold(blur, thresh_level, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     im_thresh = cv2.bitwise_not(im_thresh)
