@@ -27,7 +27,7 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 numbers_model = tf.keras.models.load_model("ML/models/backup/number_model_2.0.h5")
 rank_model = tf.keras.models.load_model("ML/models/backup/values_model_3.0.h5")
-suit_model = tf.keras.models.load_model("ML/models/backup/signs_model.h5")
+suit_model = tf.keras.models.load_model("ML/models/backup/signs_model_2.0.h5")
 
 def predict_rank(image):
     image = cv2.resize(image, (28, 28))
@@ -180,35 +180,33 @@ def preprocess_card(contour, image):
         thresh_level = 1
     retval, query_thresh = cv2.threshold(card_corner_zoom, thresh_level, 255, cv2.THRESH_BINARY_INV)
 
-    # Split into top and bottom half (top shows rank, bottom shows suit)
-    card_rank = query_thresh[20:185, 0:128]
-    card_suit = query_thresh[186:336, 0:128]
+    # # Split into top and bottom half (top shows rank, bottom shows suit)
+    # card_rank = query_thresh[20:185, 0:128]
+    # card_suit = query_thresh[186:336, 0:128]
 
-    # Find rank contour and bounding rectangle, isolate and find the largest contour
-    card_rank_contours, hier = cv2.findContours(card_rank, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    card_rank_contours = sorted(card_rank_contours, key=cv2.contourArea, reverse=True)
+    contours, hier = cv2.findContours(query_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)[0:2]
+    contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[1])
+    card_rank_contour = contours[0]
+    card_suit_contour = contours[1]
 
     # Find bounding rectangle for largest contour, use it to resize query rank
     # image to match dimensions of the train rank image
-    if len(card_rank_contours) != 0:
-        x1, y1, w1, h1 = cv2.boundingRect(card_rank_contours[0])
-        card_rank_roi = card_rank[y1:y1 + h1, x1:x1 + w1]
-        card_rank_sized = cv2.resize(card_rank_roi, (RANK_WIDTH, RANK_HEIGHT), 0, 0)
-        card_rank_sized = cv2.copyMakeBorder(card_rank_sized, 4, 4, 4, 4, cv2.BORDER_CONSTANT)
-        card.rank_img = card_rank_sized
+    x1, y1, w1, h1 = cv2.boundingRect(card_rank_contour)
+    card_rank_roi = query_thresh[y1:y1 + h1, x1:x1 + w1]
+    card_rank_sized = cv2.resize(card_rank_roi, (RANK_WIDTH, RANK_HEIGHT), 0, 0)
+    card_rank_sized = cv2.copyMakeBorder(card_rank_sized, 4, 4, 4, 4, cv2.BORDER_CONSTANT)
+    card.rank_img = card_rank_sized
 
     # Find suit contour and bounding rectangle, isolate and find the largest contour
-    card_suit_contours, hier = cv2.findContours(card_suit, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    card_suit_contours = sorted(card_suit_contours, key=cv2.contourArea, reverse=True)
 
     # Find bounding rectangle for largest contour, use it to resize query suit
     # image to match dimensions of the train suit image
-    if len(card_suit_contours) != 0:
-        x2, y2, w2, h2 = cv2.boundingRect(card_suit_contours[0])
-        card_suit_roi = card_suit[y2:y2 + h2, x2:x2 + w2]
-        card_suit_sized = cv2.resize(card_suit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
-        card_suit_sized = cv2.copyMakeBorder(card_suit_sized, 2, 2, 2, 2, cv2.BORDER_CONSTANT)
-        card.suit_img = card_suit_sized
+    x2, y2, w2, h2 = cv2.boundingRect(card_suit_contour)
+    card_suit_roi = query_thresh[y2:y2 + h2, x2:x2 + w2]
+    card_suit_sized = cv2.resize(card_suit_roi, (SUIT_WIDTH, SUIT_HEIGHT), 0, 0)
+    card_suit_sized = cv2.copyMakeBorder(card_suit_sized, 2, 2, 2, 2, cv2.BORDER_CONSTANT)
+    card.suit_img = card_suit_sized
 
     card.best_suit_match = predict_suit(card.suit_img)
     card.best_rank_match = str(predict_rank(card.rank_img))
